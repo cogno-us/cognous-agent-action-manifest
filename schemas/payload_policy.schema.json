@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cognous.ai/agent-action-manifest/payload_policy.schema.json",
+  "title": "PayloadPolicy",
+  "description": "Field-level payload policy for an action's input payload.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "required_fields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Fields that must be present in the action payload."
+    },
+    "optional_fields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Fields that may optionally appear in the action payload."
+    },
+    "sensitive_fields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Fields considered sensitive and subject to access controls or redaction."
+    },
+    "forbidden_fields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Fields that must not appear in the action payload."
+    }
+  }
+}

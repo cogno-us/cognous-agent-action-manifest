@@ -1,0 +1,194 @@
+{
+  "manifest_version": "1.0",
+  "manifest_id": "finance-workflow-agent-v1",
+  "agent_name": "Finance Workflow Agent",
+  "agent_description": "Reads invoice records, proposes payment approvals, executes approved payments, and produces audit exports with appropriate redaction.",
+  "owner": "finance-operations-team",
+  "environment": "production",
+  "default_action": "escalate",
+  "tools": [
+    {
+      "tool_name": "invoice_tool",
+      "description": "Reads invoice records from the finance system.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "confidential"
+    },
+    {
+      "tool_name": "payment_tool",
+      "description": "Records payment recommendations and executes approved payment approvals.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "restricted"
+    },
+    {
+      "tool_name": "audit_tool",
+      "description": "Generates and exports audit records for finance workflows.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "confidential"
+    }
+  ],
+  "actions": [
+    {
+      "action_name": "invoice_read",
+      "tool_name": "invoice_tool",
+      "action_type": "read",
+      "description": "Read invoice records from the finance system.",
+      "default_action": null,
+      "authority_required": [],
+      "review_requirement": {
+        "mode": "none"
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["database"],
+        "description": "Invoice data must be recorded as a reliance source."
+      },
+      "payload_policy": {
+        "required_fields": ["invoice_id"],
+        "optional_fields": ["include_line_items"],
+        "sensitive_fields": ["invoice_id"],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [
+        {
+          "field_path": "invoice_id",
+          "reason": "Invoice identifier must be redacted in exported records.",
+          "replacement": "[REDACTED]"
+        }
+      ],
+      "tags": ["invoice", "read"],
+      "metadata": {}
+    },
+    {
+      "action_name": "payment_recommendation",
+      "tool_name": "payment_tool",
+      "action_type": "write",
+      "description": "Draft a payment recommendation for a reviewed invoice.",
+      "default_action": null,
+      "authority_required": [
+        {
+          "scope": "finance.payment.recommend",
+          "description": "Permission to draft payment recommendations.",
+          "required": true,
+          "source": "finance-operations-team"
+        }
+      ],
+      "review_requirement": {
+        "mode": "human_review",
+        "reviewer_role": "finance-controller",
+        "reason": "Payment recommendations must be reviewed by the finance controller."
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["database", "tool"],
+        "description": "Recommendation must cite the invoice records relied upon."
+      },
+      "payload_policy": {
+        "required_fields": ["invoice_id", "recommended_amount", "justification"],
+        "optional_fields": ["payment_date", "notes"],
+        "sensitive_fields": ["recommended_amount"],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [
+        {
+          "field_path": "recommended_amount",
+          "reason": "Payment amounts are financially sensitive.",
+          "replacement": "[REDACTED]"
+        }
+      ],
+      "tags": ["payment", "recommend"],
+      "metadata": {}
+    },
+    {
+      "action_name": "payment_approve",
+      "tool_name": "payment_tool",
+      "action_type": "approve",
+      "description": "Approve and record a payment decision for an invoice.",
+      "default_action": null,
+      "authority_required": [
+        {
+          "scope": "finance.payment.approve",
+          "description": "Permission to approve payments.",
+          "required": true,
+          "source": "finance-operations-team"
+        },
+        {
+          "scope": "finance.payment.dual_control",
+          "description": "Dual-control authority required: a second authorised approver must confirm.",
+          "required": true,
+          "source": "finance-operations-team"
+        }
+      ],
+      "review_requirement": {
+        "mode": "approval_required",
+        "reviewer_role": "finance-director",
+        "reason": "Payment approvals require finance director sign-off."
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["database", "tool", "user_input"],
+        "description": "Payment approval must record the invoice and recommendation as reliance."
+      },
+      "payload_policy": {
+        "required_fields": ["invoice_id", "recommendation_id", "approved_amount"],
+        "optional_fields": ["notes"],
+        "sensitive_fields": ["approved_amount"],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [
+        {
+          "field_path": "approved_amount",
+          "reason": "Approved payment amounts are financially sensitive.",
+          "replacement": "[REDACTED]"
+        },
+        {
+          "field_path": "invoice_id",
+          "reason": "Invoice identifier must be redacted in exported records.",
+          "replacement": "[REDACTED]"
+        }
+      ],
+      "tags": ["payment", "approve"],
+      "metadata": {}
+    },
+    {
+      "action_name": "audit_export",
+      "tool_name": "audit_tool",
+      "action_type": "export",
+      "description": "Export an audit record of the payment workflow for governance purposes.",
+      "default_action": null,
+      "authority_required": [
+        {
+          "scope": "finance.audit.export",
+          "description": "Permission to export audit records.",
+          "required": true,
+          "source": "finance-operations-team"
+        }
+      ],
+      "review_requirement": {
+        "mode": "approval_required",
+        "reviewer_role": "finance-director",
+        "reason": "Audit exports require director approval."
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["database", "tool"],
+        "description": "Audit export must reference all workflow steps and reliance records."
+      },
+      "payload_policy": {
+        "required_fields": ["workflow_id", "export_destination"],
+        "optional_fields": ["format", "date_range"],
+        "sensitive_fields": [],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [],
+      "tags": ["audit", "export"],
+      "metadata": {}
+    }
+  ],
+  "metadata": {
+    "created": "2026-01-01",
+    "version_notes": "Initial production manifest for finance workflow agent."
+  }
+}

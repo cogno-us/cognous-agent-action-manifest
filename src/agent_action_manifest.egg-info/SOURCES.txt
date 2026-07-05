@@ -1,0 +1,14 @@
+LICENSE
+README.md
+pyproject.toml
+src/agent_action_manifest/__init__.py
+src/agent_action_manifest/cli.py
+src/agent_action_manifest/loader.py
+src/agent_action_manifest/models.py
+src/agent_action_manifest/validator.py
+src/agent_action_manifest.egg-info/PKG-INFO
+src/agent_action_manifest.egg-info/SOURCES.txt
+src/agent_action_manifest.egg-info/dependency_links.txt
+src/agent_action_manifest.egg-info/entry_points.txt
+src/agent_action_manifest.egg-info/requires.txt
+src/agent_action_manifest.egg-info/top_level.txt

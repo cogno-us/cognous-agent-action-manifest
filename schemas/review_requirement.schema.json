@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cognous.ai/agent-action-manifest/review_requirement.schema.json",
+  "title": "ReviewRequirement",
+  "description": "The review posture required before an action may be executed.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["none", "human_review", "approval_required", "draft_first"],
+      "default": "none",
+      "description": "The review posture required before this action may be executed."
+    },
+    "reviewer_role": {
+      "type": ["string", "null"],
+      "description": "The role responsible for review when mode is human_review or approval_required."
+    },
+    "reason": {
+      "type": ["string", "null"],
+      "description": "Reason why this review requirement exists."
+    }
+  }
+}

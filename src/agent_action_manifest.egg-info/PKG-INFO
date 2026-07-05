@@ -1,0 +1,25 @@
+Metadata-Version: 2.4
+Name: agent-action-manifest
+Version: 0.1.0
+Summary: A lightweight manifest format for declaring what actions an AI agent may propose and what authority, review, reliance, and redaction requirements apply before runtime execution.
+Author-email: Cognous <open-source@cognous.ai>
+License: Apache-2.0
+Keywords: agent,manifest,governance,ai,action
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pydantic>=2.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov; extra == "dev"
+Dynamic: license-file
+
+# cognous-agent-action-manifest
+A public schema and reference validator for declaring what actions an AI agent may propose, what tools it may call, and what authority each action requires.

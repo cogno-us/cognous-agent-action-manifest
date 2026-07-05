@@ -1,0 +1,163 @@
+{
+  "manifest_version": "1.0",
+  "manifest_id": "internal-research-agent-v1",
+  "agent_name": "Internal Research Agent",
+  "agent_description": "Searches internal documents, reads files, generates summaries, and exports reports for internal research workflows.",
+  "owner": "research-operations-team",
+  "environment": "production",
+  "default_action": "escalate",
+  "tools": [
+    {
+      "tool_name": "document_search_tool",
+      "description": "Full-text search across the internal document repository.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "internal"
+    },
+    {
+      "tool_name": "file_read_tool",
+      "description": "Reads files from the internal document store.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "internal"
+    },
+    {
+      "tool_name": "summary_tool",
+      "description": "Generates textual summaries of provided content.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "internal"
+    },
+    {
+      "tool_name": "export_tool",
+      "description": "Exports reports to designated output locations.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "internal"
+    }
+  ],
+  "actions": [
+    {
+      "action_name": "document_search",
+      "tool_name": "document_search_tool",
+      "action_type": "read",
+      "description": "Search the internal document repository for relevant documents.",
+      "default_action": null,
+      "authority_required": [],
+      "review_requirement": {
+        "mode": "none"
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["database"],
+        "description": "Search results must be recorded as reliance sources."
+      },
+      "payload_policy": {
+        "required_fields": ["query"],
+        "optional_fields": ["filters", "limit"],
+        "sensitive_fields": [],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [],
+      "tags": ["search", "read"],
+      "metadata": {}
+    },
+    {
+      "action_name": "file_read",
+      "tool_name": "file_read_tool",
+      "action_type": "read",
+      "description": "Read the contents of a specified internal file.",
+      "default_action": null,
+      "authority_required": [],
+      "review_requirement": {
+        "mode": "none"
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["file"],
+        "description": "File contents must be recorded as a reliance source."
+      },
+      "payload_policy": {
+        "required_fields": ["file_path"],
+        "optional_fields": ["encoding"],
+        "sensitive_fields": [],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [],
+      "tags": ["file", "read"],
+      "metadata": {}
+    },
+    {
+      "action_name": "summary_generate",
+      "tool_name": "summary_tool",
+      "action_type": "write",
+      "description": "Generate a summary of research findings from provided source material.",
+      "default_action": null,
+      "authority_required": [
+        {
+          "scope": "research.summary.write",
+          "description": "Permission to generate and store research summaries.",
+          "required": true,
+          "source": "research-operations-team"
+        }
+      ],
+      "review_requirement": {
+        "mode": "human_review",
+        "reviewer_role": "research-lead",
+        "reason": "Summaries must be reviewed by the research lead before export."
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["tool", "file", "database"],
+        "description": "Summary must cite the source documents relied upon."
+      },
+      "payload_policy": {
+        "required_fields": ["source_documents", "summary_title"],
+        "optional_fields": ["format", "max_length"],
+        "sensitive_fields": [],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [],
+      "tags": ["summary", "write"],
+      "metadata": {}
+    },
+    {
+      "action_name": "report_export",
+      "tool_name": "export_tool",
+      "action_type": "export",
+      "description": "Export a completed research summary to a designated output location.",
+      "default_action": null,
+      "authority_required": [
+        {
+          "scope": "research.report.export",
+          "description": "Permission to export research reports.",
+          "required": true,
+          "source": "research-operations-team"
+        }
+      ],
+      "review_requirement": {
+        "mode": "approval_required",
+        "reviewer_role": "research-lead",
+        "reason": "Reports must be approved before export."
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["tool", "file", "database", "model_output"],
+        "description": "Export must record the approved summary and all source documents as reliance."
+      },
+      "payload_policy": {
+        "required_fields": ["report_id", "destination"],
+        "optional_fields": ["format", "notify_recipients"],
+        "sensitive_fields": [],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [],
+      "tags": ["export", "report"],
+      "metadata": {}
+    }
+  ],
+  "metadata": {
+    "created": "2026-01-01",
+    "version_notes": "Initial production manifest for internal research agent."
+  }
+}
