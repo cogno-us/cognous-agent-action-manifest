@@ -2,7 +2,7 @@ Metadata-Version: 2.4
 Name: agent-action-manifest
 Version: 0.1.0
 Summary: A lightweight manifest format for declaring what actions an AI agent may propose and what authority, review, reliance, and redaction requirements apply before runtime execution.
-Author-email: Cognous <open-source@cognous.ai>
+Author-email: Cognous <andredelima@cogno.us>
 License: Apache-2.0
 Keywords: agent,manifest,governance,ai,action
 Classifier: Development Status :: 3 - Alpha
