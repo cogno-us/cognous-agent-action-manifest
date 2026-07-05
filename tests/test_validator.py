@@ -139,7 +139,7 @@ class TestErrorValidation:
 
     def test_action_referencing_disallowed_tool_is_error(self):
         tool = _tool("disabled_tool", allowed=False)
-        action = _make_action("act1", "disabled_tool")
+        action = _make_action("act1", "disabled_tool", default_action="escalate")
         manifest = AgentActionManifest.model_validate(
             _base_manifest().model_dump(mode="json")
             | {"tools": [tool.model_dump()], "actions": [action.model_dump()]}
@@ -154,6 +154,17 @@ class TestErrorValidation:
         action = _make_action("act1", "disabled_tool", default_action="block")
         manifest = AgentActionManifest.model_validate(
             _base_manifest().model_dump(mode="json")
+            | {"tools": [tool.model_dump()], "actions": [action.model_dump()]}
+        )
+        report = validate_manifest(manifest)
+        codes = [i.code for i in report.issues if i.severity == ValidationSeverity.error]
+        assert "E015" not in codes
+
+    def test_manifest_blocked_action_referencing_disallowed_tool_has_no_e015(self):
+        tool = _tool("disabled_tool", allowed=False)
+        action = _make_action("act1", "disabled_tool")
+        manifest = AgentActionManifest.model_validate(
+            _base_manifest(default_action="block").model_dump(mode="json")
             | {"tools": [tool.model_dump()], "actions": [action.model_dump()]}
         )
         report = validate_manifest(manifest)
@@ -195,6 +206,9 @@ class TestErrorValidation:
         report = validate_manifest(manifest)
         codes = [i.code for i in report.issues if i.severity == ValidationSeverity.error]
         assert "E008" in codes
+        issues = [i for i in report.issues if i.code == "E008"]
+        assert len(issues) == 1
+        assert issues[0].alias == "privileged_action_missing_authority"
 
     @pytest.mark.parametrize("action_type", ["write", "delete", "purchase", "approve"])
     def test_high_risk_action_blocked_no_authority_passes_e008(self, action_type):

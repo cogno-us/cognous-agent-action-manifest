@@ -16,11 +16,11 @@ This repository includes four example manifests that demonstrate common agent sc
 |---|---|---|---|---|
 | `crm_read` | `crm_tool` | `read` | none | none |
 | `notes_search` | `notes_tool` | `read` | none | none |
-| `email_draft` | `email_tool` | `write` | none (blocked) | `draft_first` |
+| `email_draft` | `email_tool` | `write` | `email.draft.customer` | `draft_first` |
 | `email_send` | `email_tool` | `external_send` | `email.send.customer` | `approval_required` |
 
 **Key design decisions:**
-- `email_draft` is blocked by default; it requires the `draft_first` review mode to produce a draft for review.
+- `email_draft` requires authority, uses `draft_first` review, and records reliance sources from tools, databases, or user input.
 - `email_send` requires authority and supervisor approval.
 - Both email actions have sensitive field declarations and redaction hints for `to`, `body`, and `customer_id`.
 

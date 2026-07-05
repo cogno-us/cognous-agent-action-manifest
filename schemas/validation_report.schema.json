@@ -32,7 +32,7 @@
             "description": "Stable code string identifying this validation rule."
           },
           "alias": {
-            "type": ["string", "null"],
+            "type": "string",
             "description": "Optional semantic alias for this validation rule."
           },
           "message": {
