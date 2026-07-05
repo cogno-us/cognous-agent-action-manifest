@@ -157,6 +157,7 @@ def validate_manifest(manifest: AgentActionManifest) -> ValidationReport:
                     f"Action '{action.action_name}' has action_type '{action.action_type.value}' but "
                     "no authority_required entries (and is not blocked by default).",
                     f"{path_prefix}.authority_required",
+                    alias="privileged_action_missing_authority",
                 )
             )
 

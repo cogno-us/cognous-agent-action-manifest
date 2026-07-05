@@ -115,7 +115,11 @@
         "mode": "draft_first",
         "reason": "All outbound emails must be reviewed before sending."
       },
-      "reliance_requirement": null,
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["tool", "database", "user_input"],
+        "description": "Email draft should record the sources used to prepare the message."
+      },
       "payload_policy": {
         "required_fields": ["to", "subject", "body"],
         "optional_fields": ["cc", "bcc"],

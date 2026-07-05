@@ -48,7 +48,7 @@ Agent Action Manifest is a:
 - **Validator** — a Python library and CLI that validates a manifest against a set of governance rules
 - **Reference implementation** — a set of example manifests for common enterprise agent scenarios
 
-It produces a `ValidationReport` that surfaces errors and warnings without executing any code.
+It produces a `ValidationReport` that surfaces errors and warnings without executing any code. Each issue keeps its stable numeric code and may also include an optional semantic `alias` for integrations that prefer descriptive identifiers.
 
 ---
 
@@ -188,6 +188,9 @@ aam check-examples
 | E012 | `RedactionHint.field_path` must be non-empty |
 | E013 | `approval_required` mode requires `reviewer_role` to be set |
 | E014 | `default_action: allow` for high-risk action types requires authority and a review mode other than `none` |
+| E015 | An action cannot reference a tool marked `allowed: false` unless the action's effective `default_action` is `block` |
+
+Example aliases emitted in `ValidationIssue.alias` include `duplicate_action_name`, `duplicate_tool_name`, `unknown_tool_reference`, `external_send_missing_authority`, `high_risk_action_missing_authority`, `approval_missing_reviewer_role`, and `disallowed_tool_reference`.
 
 ### Warnings
 
