@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cognous.ai/agent-action-manifest/agent_action_manifest.schema.json",
+  "title": "AgentActionManifest",
+  "description": "A structured declaration of the actions an AI agent may propose, the tools it may use, and the authority, review, reliance, and redaction requirements that apply.",
+  "type": "object",
+  "required": ["manifest_version", "manifest_id", "agent_name"],
+  "additionalProperties": false,
+  "properties": {
+    "manifest_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Schema version for this manifest."
+    },
+    "manifest_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique identifier for this manifest instance."
+    },
+    "agent_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the agent described by this manifest."
+    },
+    "agent_description": {
+      "type": ["string", "null"],
+      "description": "Human-readable description of the agent."
+    },
+    "owner": {
+      "type": ["string", "null"],
+      "description": "Team or individual responsible for this agent manifest."
+    },
+    "environment": {
+      "type": "string",
+      "default": "development",
+      "description": "Deployment environment this manifest applies to (e.g. development, staging, production)."
+    },
+    "default_action": {
+      "type": "string",
+      "enum": ["allow", "block", "escalate"],
+      "default": "escalate",
+      "description": "Manifest-level default posture applied to any action not individually overridden."
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["tool_name"],
+        "additionalProperties": false,
+        "properties": {
+          "tool_name": {
+            "type": "string",
+            "description": "Unique name identifying this tool."
+          },
+          "description": {
+            "type": ["string", "null"],
+            "description": "Human-readable description of the tool."
+          },
+          "allowed": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether the agent is permitted to call this tool."
+          },
+          "external_system": {
+            "type": ["string", "null"],
+            "description": "External system or service that this tool communicates with."
+          },
+          "data_classification": {
+            "type": ["string", "null"],
+            "description": "Data classification level for data handled or returned by this tool."
+          }
+        }
+      },
+      "description": "Tools the agent is permitted to call."
+    },
+    "actions": {
+      "type": "array",
+      "items": { "$ref": "tool_action.schema.json" },
+      "description": "Actions the agent may propose."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata for this manifest."
+    }
+  }
+}

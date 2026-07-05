@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cognous.ai/agent-action-manifest/reliance_requirement.schema.json",
+  "title": "RelianceRequirement",
+  "description": "Reliance evidence requirements for an action.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether reliance evidence must be recorded before this action is executed."
+    },
+    "allowed_source_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["tool", "database", "file", "api", "user_input", "model_output", "other"]
+      },
+      "description": "The types of sources whose outputs may be relied upon for this action."
+    },
+    "description": {
+      "type": ["string", "null"],
+      "description": "Description of the reliance requirement."
+    }
+  }
+}

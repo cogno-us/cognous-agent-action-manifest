@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cognous.ai/agent-action-manifest/authority_requirement.schema.json",
+  "title": "AuthorityRequirement",
+  "description": "An authority scope required before an action may be proposed or executed.",
+  "type": "object",
+  "required": ["scope"],
+  "additionalProperties": false,
+  "properties": {
+    "scope": {
+      "type": "string",
+      "description": "The authority scope required for this action."
+    },
+    "description": {
+      "type": ["string", "null"],
+      "description": "Human-readable description of the authority requirement."
+    },
+    "required": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this authority scope is strictly required."
+    },
+    "source": {
+      "type": ["string", "null"],
+      "description": "Origin or governing system for the authority scope."
+    }
+  }
+}

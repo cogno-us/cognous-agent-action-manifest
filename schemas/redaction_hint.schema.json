@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cognous.ai/agent-action-manifest/redaction_hint.schema.json",
+  "title": "RedactionHint",
+  "description": "A hint indicating that a specific payload field should be redacted in exported records.",
+  "type": "object",
+  "required": ["field_path"],
+  "additionalProperties": false,
+  "properties": {
+    "field_path": {
+      "type": "string",
+      "minLength": 1,
+      "description": "JSON path or field name to be redacted in exported records."
+    },
+    "reason": {
+      "type": ["string", "null"],
+      "description": "Reason for redacting this field."
+    },
+    "replacement": {
+      "type": "string",
+      "default": "[REDACTED]",
+      "description": "Replacement value used in redacted output."
+    }
+  }
+}

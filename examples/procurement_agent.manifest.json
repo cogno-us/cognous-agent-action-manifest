@@ -1,0 +1,222 @@
+{
+  "manifest_version": "1.0",
+  "manifest_id": "procurement-agent-v1",
+  "agent_name": "Procurement Agent",
+  "agent_description": "Assists the procurement team by researching vendors, comparing quotes, drafting purchase recommendations, creating approved purchase orders, and notifying vendors.",
+  "owner": "procurement-team",
+  "environment": "production",
+  "default_action": "escalate",
+  "tools": [
+    {
+      "tool_name": "vendor_db_tool",
+      "description": "Queries the internal vendor database.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "internal"
+    },
+    {
+      "tool_name": "quote_tool",
+      "description": "Retrieves and compares vendor quotes.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "confidential"
+    },
+    {
+      "tool_name": "recommendation_tool",
+      "description": "Drafts purchase recommendations based on quote comparisons.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "confidential"
+    },
+    {
+      "tool_name": "purchase_order_tool",
+      "description": "Creates purchase orders in the procurement system.",
+      "allowed": true,
+      "external_system": null,
+      "data_classification": "confidential"
+    },
+    {
+      "tool_name": "vendor_email_tool",
+      "description": "Sends email notifications to vendors.",
+      "allowed": true,
+      "external_system": "smtp.internal",
+      "data_classification": "confidential"
+    }
+  ],
+  "actions": [
+    {
+      "action_name": "vendor_lookup",
+      "tool_name": "vendor_db_tool",
+      "action_type": "read",
+      "description": "Look up vendor records in the vendor database.",
+      "default_action": null,
+      "authority_required": [],
+      "review_requirement": {
+        "mode": "none"
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["database"],
+        "description": "Vendor data must be recorded as a reliance source."
+      },
+      "payload_policy": {
+        "required_fields": ["vendor_id"],
+        "optional_fields": ["include_contracts"],
+        "sensitive_fields": [],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [],
+      "tags": ["vendor", "read"],
+      "metadata": {}
+    },
+    {
+      "action_name": "quote_compare",
+      "tool_name": "quote_tool",
+      "action_type": "read",
+      "description": "Retrieve and compare quotes from multiple vendors.",
+      "default_action": null,
+      "authority_required": [],
+      "review_requirement": {
+        "mode": "none"
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["database", "api"],
+        "description": "Quote data must be recorded as a reliance source."
+      },
+      "payload_policy": {
+        "required_fields": ["vendor_ids", "item_code"],
+        "optional_fields": ["currency", "delivery_window"],
+        "sensitive_fields": [],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [],
+      "tags": ["quote", "read"],
+      "metadata": {}
+    },
+    {
+      "action_name": "purchase_recommendation",
+      "tool_name": "recommendation_tool",
+      "action_type": "write",
+      "description": "Draft a purchase recommendation based on vendor and quote analysis.",
+      "default_action": null,
+      "authority_required": [
+        {
+          "scope": "procurement.recommendation.write",
+          "description": "Permission to draft and store purchase recommendations.",
+          "required": true,
+          "source": "procurement-team"
+        }
+      ],
+      "review_requirement": {
+        "mode": "human_review",
+        "reviewer_role": "procurement-manager",
+        "reason": "Purchase recommendations must be reviewed by the procurement manager."
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["database", "api", "tool"],
+        "description": "Recommendation must cite the vendor records and quotes relied upon."
+      },
+      "payload_policy": {
+        "required_fields": ["recommended_vendor_id", "item_code", "justification"],
+        "optional_fields": ["alternative_vendors", "estimated_cost"],
+        "sensitive_fields": [],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [],
+      "tags": ["recommendation", "write"],
+      "metadata": {}
+    },
+    {
+      "action_name": "purchase_order_create",
+      "tool_name": "purchase_order_tool",
+      "action_type": "purchase",
+      "description": "Create an approved purchase order in the procurement system.",
+      "default_action": null,
+      "authority_required": [
+        {
+          "scope": "procurement.purchase_order.create",
+          "description": "Permission to create purchase orders.",
+          "required": true,
+          "source": "procurement-team"
+        },
+        {
+          "scope": "finance.purchase.approve",
+          "description": "Finance approval required for purchase orders above threshold.",
+          "required": true,
+          "source": "finance-team"
+        }
+      ],
+      "review_requirement": {
+        "mode": "approval_required",
+        "reviewer_role": "procurement-director",
+        "reason": "Purchase orders require director-level approval before creation."
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["tool", "database", "user_input"],
+        "description": "Purchase order must record the approved recommendation as a reliance source."
+      },
+      "payload_policy": {
+        "required_fields": ["vendor_id", "item_code", "quantity", "unit_price", "recommendation_id"],
+        "optional_fields": ["delivery_date", "notes"],
+        "sensitive_fields": ["unit_price"],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [
+        {
+          "field_path": "unit_price",
+          "reason": "Unit price is commercially sensitive and must be redacted in exported records.",
+          "replacement": "[REDACTED]"
+        }
+      ],
+      "tags": ["purchase", "order"],
+      "metadata": {}
+    },
+    {
+      "action_name": "vendor_email_send",
+      "tool_name": "vendor_email_tool",
+      "action_type": "external_send",
+      "description": "Send an email notification to a vendor regarding a purchase order.",
+      "default_action": null,
+      "authority_required": [
+        {
+          "scope": "procurement.vendor.email",
+          "description": "Permission to send emails to vendors on behalf of the procurement team.",
+          "required": true,
+          "source": "procurement-team"
+        }
+      ],
+      "review_requirement": {
+        "mode": "approval_required",
+        "reviewer_role": "procurement-manager",
+        "reason": "Outbound vendor emails require manager approval."
+      },
+      "reliance_requirement": {
+        "required": true,
+        "allowed_source_types": ["tool", "user_input"],
+        "description": "Vendor email must record the purchase order as a reliance source."
+      },
+      "payload_policy": {
+        "required_fields": ["to", "subject", "body", "purchase_order_id"],
+        "optional_fields": ["cc"],
+        "sensitive_fields": ["to"],
+        "forbidden_fields": []
+      },
+      "redaction_hints": [
+        {
+          "field_path": "to",
+          "reason": "Vendor email address must be redacted in exported records.",
+          "replacement": "[REDACTED]"
+        }
+      ],
+      "tags": ["vendor", "email", "external"],
+      "metadata": {}
+    }
+  ],
+  "metadata": {
+    "created": "2026-01-01",
+    "version_notes": "Initial production manifest for procurement agent."
+  }
+}

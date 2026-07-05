@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cognous.ai/agent-action-manifest/tool_action.schema.json",
+  "title": "ToolAction",
+  "description": "An action that an AI agent may propose, along with its authority, review, reliance, and payload requirements.",
+  "type": "object",
+  "required": ["action_name", "tool_name", "action_type"],
+  "additionalProperties": false,
+  "properties": {
+    "action_name": {
+      "type": "string",
+      "description": "Unique name identifying this action."
+    },
+    "tool_name": {
+      "type": "string",
+      "description": "The tool that executes this action."
+    },
+    "action_type": {
+      "type": "string",
+      "enum": ["read", "write", "external_send", "delete", "export", "purchase", "approve", "escalate", "other"],
+      "description": "The category of action being performed."
+    },
+    "description": {
+      "type": ["string", "null"],
+      "description": "Human-readable description of this action."
+    },
+    "default_action": {
+      "type": ["string", "null"],
+      "enum": ["allow", "block", "escalate", null],
+      "description": "Action-level override for the manifest default posture."
+    },
+    "authority_required": {
+      "type": "array",
+      "items": { "$ref": "authority_requirement.schema.json" },
+      "description": "Authority scopes required before this action may be proposed."
+    },
+    "review_requirement": {
+      "oneOf": [
+        { "$ref": "review_requirement.schema.json" },
+        { "type": "null" }
+      ],
+      "description": "Review posture required before this action may be executed."
+    },
+    "reliance_requirement": {
+      "oneOf": [
+        { "$ref": "reliance_requirement.schema.json" },
+        { "type": "null" }
+      ],
+      "description": "Reliance evidence requirements for this action."
+    },
+    "payload_policy": {
+      "oneOf": [
+        { "$ref": "payload_policy.schema.json" },
+        { "type": "null" }
+      ],
+      "description": "Field-level payload policy for this action's input payload."
+    },
+    "redaction_hints": {
+      "type": "array",
+      "items": { "$ref": "redaction_hint.schema.json" },
+      "description": "Fields to be redacted in exported records for this action."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Optional tags for categorising or filtering actions."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata for this action."
+    }
+  }
+}

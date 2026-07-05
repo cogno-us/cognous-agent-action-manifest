@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cognous.ai/agent-action-manifest/validation_report.schema.json",
+  "title": "ValidationReport",
+  "description": "The result of validating an Agent Action Manifest.",
+  "type": "object",
+  "required": ["valid", "issues"],
+  "additionalProperties": false,
+  "properties": {
+    "valid": {
+      "type": "boolean",
+      "description": "True only when no error-severity issues were found."
+    },
+    "manifest_id": {
+      "type": ["string", "null"],
+      "description": "manifest_id of the validated manifest."
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "code", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["error", "warning"],
+            "description": "Severity level of this validation issue."
+          },
+          "code": {
+            "type": "string",
+            "description": "Stable code string identifying this validation rule."
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable description of the validation issue."
+          },
+          "path": {
+            "type": ["string", "null"],
+            "description": "JSON-path-style location of the issue within the manifest."
+          }
+        }
+      },
+      "description": "List of validation issues found."
+    }
+  }
+}
