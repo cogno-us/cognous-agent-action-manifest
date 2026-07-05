@@ -160,6 +160,12 @@ class TestEnumValidation:
             )
             assert issue.severity.value == sev
 
+    def test_validation_issue_alias_defaults_to_none(self):
+        issue = ValidationIssue.model_validate(
+            {"severity": "error", "code": "X001", "message": "test"}
+        )
+        assert issue.alias is None
+
 
 class TestValidationReportModel:
     def test_valid_report(self):
@@ -175,10 +181,17 @@ class TestValidationReportModel:
                 "valid": False,
                 "manifest_id": "x",
                 "issues": [
-                    {"severity": "error", "code": "E001", "message": "problem", "path": "field"}
+                    {
+                        "severity": "error",
+                        "code": "E001",
+                        "alias": "manifest_version_missing",
+                        "message": "problem",
+                        "path": "field",
+                    }
                 ],
             }
         )
         assert report.valid is False
         assert len(report.issues) == 1
         assert report.issues[0].code == "E001"
+        assert report.issues[0].alias == "manifest_version_missing"

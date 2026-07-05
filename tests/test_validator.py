@@ -109,6 +109,8 @@ class TestErrorValidation:
         report = validate_manifest(manifest)
         codes = [i.code for i in report.issues if i.severity == ValidationSeverity.error]
         assert "E004" in codes
+        aliases = [i.alias for i in report.issues if i.code == "E004"]
+        assert "duplicate_action_name" in aliases
 
     def test_duplicate_tool_names_is_error(self):
         tool1 = _tool("dup_tool")
@@ -120,6 +122,8 @@ class TestErrorValidation:
         report = validate_manifest(manifest)
         codes = [i.code for i in report.issues if i.severity == ValidationSeverity.error]
         assert "E005" in codes
+        aliases = [i.alias for i in report.issues if i.code == "E005"]
+        assert "duplicate_tool_name" in aliases
 
     def test_action_referencing_unknown_tool_is_error(self):
         action = _make_action("act1", "nonexistent_tool")
@@ -130,6 +134,31 @@ class TestErrorValidation:
         report = validate_manifest(manifest)
         codes = [i.code for i in report.issues if i.severity == ValidationSeverity.error]
         assert "E006" in codes
+        aliases = [i.alias for i in report.issues if i.code == "E006"]
+        assert "unknown_tool_reference" in aliases
+
+    def test_action_referencing_disallowed_tool_is_error(self):
+        tool = _tool("disabled_tool", allowed=False)
+        action = _make_action("act1", "disabled_tool")
+        manifest = AgentActionManifest.model_validate(
+            _base_manifest().model_dump(mode="json")
+            | {"tools": [tool.model_dump()], "actions": [action.model_dump()]}
+        )
+        report = validate_manifest(manifest)
+        issues = [i for i in report.issues if i.code == "E015"]
+        assert len(issues) == 1
+        assert issues[0].alias == "disallowed_tool_reference"
+
+    def test_blocked_action_referencing_disallowed_tool_has_no_e015(self):
+        tool = _tool("disabled_tool", allowed=False)
+        action = _make_action("act1", "disabled_tool", default_action="block")
+        manifest = AgentActionManifest.model_validate(
+            _base_manifest().model_dump(mode="json")
+            | {"tools": [tool.model_dump()], "actions": [action.model_dump()]}
+        )
+        report = validate_manifest(manifest)
+        codes = [i.code for i in report.issues if i.severity == ValidationSeverity.error]
+        assert "E015" not in codes
 
     def test_external_send_without_authority_is_error(self):
         tool = _tool("ext_tool")
@@ -141,6 +170,8 @@ class TestErrorValidation:
         report = validate_manifest(manifest)
         codes = [i.code for i in report.issues if i.severity == ValidationSeverity.error]
         assert "E007" in codes
+        aliases = [i.alias for i in report.issues if i.code == "E007"]
+        assert "external_send_missing_authority" in aliases
 
     def test_external_send_blocked_no_authority_required_passes_e007(self):
         tool = _tool("ext_tool")
@@ -239,6 +270,8 @@ class TestErrorValidation:
         report = validate_manifest(manifest)
         codes = [i.code for i in report.issues if i.severity == ValidationSeverity.error]
         assert "E013" in codes
+        aliases = [i.alias for i in report.issues if i.code == "E013"]
+        assert "approval_missing_reviewer_role" in aliases
 
     def test_allow_on_high_risk_without_authority_and_review_is_error(self):
         tool = _tool("ext_tool")
@@ -255,6 +288,8 @@ class TestErrorValidation:
         report = validate_manifest(manifest)
         codes = [i.code for i in report.issues if i.severity == ValidationSeverity.error]
         assert "E014" in codes
+        aliases = [i.alias for i in report.issues if i.code == "E014"]
+        assert "high_risk_action_missing_authority" in aliases
 
 
 class TestWarningValidation:

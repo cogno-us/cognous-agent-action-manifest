@@ -31,6 +31,10 @@
             "type": "string",
             "description": "Stable code string identifying this validation rule."
           },
+          "alias": {
+            "type": ["string", "null"],
+            "description": "Optional semantic alias for this validation rule."
+          },
           "message": {
             "type": "string",
             "description": "Human-readable description of the validation issue."

@@ -102,8 +102,15 @@
       "tool_name": "email_tool",
       "action_type": "write",
       "description": "Draft an email to a customer. The draft is not sent until approved.",
-      "default_action": "block",
-      "authority_required": [],
+      "default_action": "escalate",
+      "authority_required": [
+        {
+          "scope": "email.draft.customer",
+          "description": "Permission to draft outbound emails to customers.",
+          "required": true,
+          "source": "customer-experience-team"
+        }
+      ],
       "review_requirement": {
         "mode": "draft_first",
         "reason": "All outbound emails must be reviewed before sending."

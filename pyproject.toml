@@ -9,7 +9,7 @@ description = "A lightweight manifest format for declaring what actions an AI ag
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"
-authors = [{ name = "Cognous", email = "open-source@cognous.ai" }]
+authors = [{ name = "Cognous", email = "andredelima@cogno.us" }]
 keywords = ["agent", "manifest", "governance", "ai", "action"]
 classifiers = [
     "Development Status :: 3 - Alpha",
