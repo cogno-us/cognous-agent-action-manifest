@@ -17,19 +17,31 @@ from .models import (
 )
 
 
-def _error(code: str, message: str, path: str | None = None) -> ValidationIssue:
+def _error(
+    code: str,
+    message: str,
+    path: str | None = None,
+    alias: str | None = None,
+) -> ValidationIssue:
     return ValidationIssue(
         severity=ValidationSeverity.error,
         code=code,
+        alias=alias,
         message=message,
         path=path,
     )
 
 
-def _warning(code: str, message: str, path: str | None = None) -> ValidationIssue:
+def _warning(
+    code: str,
+    message: str,
+    path: str | None = None,
+    alias: str | None = None,
+) -> ValidationIssue:
     return ValidationIssue(
         severity=ValidationSeverity.warning,
         code=code,
+        alias=alias,
         message=message,
         path=path,
     )
@@ -59,7 +71,12 @@ def validate_manifest(manifest: AgentActionManifest) -> ValidationReport:
     for name in action_names:
         if name in seen_action_names:
             issues.append(
-                _error("E004", f"Duplicate action_name: '{name}'.", "actions")
+                _error(
+                    "E004",
+                    f"Duplicate action_name: '{name}'.",
+                    "actions",
+                    alias="duplicate_action_name",
+                )
             )
         seen_action_names.add(name)
 
@@ -69,11 +86,17 @@ def validate_manifest(manifest: AgentActionManifest) -> ValidationReport:
     for name in tool_names:
         if name in seen_tool_names:
             issues.append(
-                _error("E005", f"Duplicate tool_name in tools: '{name}'.", "tools")
+                _error(
+                    "E005",
+                    f"Duplicate tool_name in tools: '{name}'.",
+                    "tools",
+                    alias="duplicate_tool_name",
+                )
             )
         seen_tool_names.add(name)
 
     declared_tool_names: set[str] = {t.tool_name for t in manifest.tools}
+    tools_by_name = {tool.tool_name: tool for tool in manifest.tools}
 
     for i, action in enumerate(manifest.actions):
         path_prefix = f"actions[{i}]({action.action_name})"
@@ -88,6 +111,21 @@ def validate_manifest(manifest: AgentActionManifest) -> ValidationReport:
                     "E006",
                     f"Action '{action.action_name}' references undeclared tool '{action.tool_name}'.",
                     f"{path_prefix}.tool_name",
+                    alias="unknown_tool_reference",
+                )
+            )
+        elif (
+            not tools_by_name[action.tool_name].allowed
+            and effective_default != DefaultAction.block
+        ):
+            issues.append(
+                _error(
+                    "E015",
+                    f"Action '{action.action_name}' references tool '{action.tool_name}', "
+                    "but that tool is marked not allowed. Block the action by default or "
+                    "reference an allowed tool.",
+                    f"{path_prefix}.tool_name",
+                    alias="disallowed_tool_reference",
                 )
             )
 
@@ -103,6 +141,7 @@ def validate_manifest(manifest: AgentActionManifest) -> ValidationReport:
                     f"Action '{action.action_name}' has action_type 'external_send' but no "
                     "authority_required entries (and is not blocked by default).",
                     f"{path_prefix}.authority_required",
+                    alias="external_send_missing_authority",
                 )
             )
 
@@ -187,6 +226,7 @@ def validate_manifest(manifest: AgentActionManifest) -> ValidationReport:
                         f"Action '{action.action_name}' has review_requirement.mode "
                         "'approval_required' but reviewer_role is not set.",
                         f"{path_prefix}.review_requirement.reviewer_role",
+                        alias="approval_missing_reviewer_role",
                     )
                 )
 
@@ -216,6 +256,7 @@ def validate_manifest(manifest: AgentActionManifest) -> ValidationReport:
                         f"high-risk action_type '{action.action_type.value}' but is missing: "
                         + ", ".join(parts) + ".",
                         path_prefix,
+                        alias="high_risk_action_missing_authority",
                     )
                 )
 

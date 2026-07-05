@@ -213,6 +213,10 @@ class ValidationIssue(BaseModel):
         description="Severity level of this validation issue."
     )
     code: str = Field(description="Stable code string identifying this validation rule.")
+    alias: str | None = Field(
+        default=None,
+        description="Optional semantic alias for this validation rule.",
+    )
     message: str = Field(description="Human-readable description of the validation issue.")
     path: str | None = Field(
         default=None, description="JSON-path-style location of the issue within the manifest."
