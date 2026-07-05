@@ -163,7 +163,7 @@ aam check-examples
 | E011 | `sensitive_fields` must reference fields in `required_fields` or `optional_fields` when those lists are non-empty |
 | E012 | `RedactionHint.field_path` must be non-empty |
 | E013 | `approval_required` mode requires `reviewer_role` to be set |
-| E014 | `default_action: allow` for high-risk action types requires authority and non-none review |
+| E014 | `default_action: allow` for high-risk action types requires authority and a review mode other than `none` |
 | E015 | An action cannot reference a tool marked `allowed: false` unless the action's effective `default_action` is `block` |
 
 Example aliases emitted in `ValidationIssue.alias` include `duplicate_action_name`, `duplicate_tool_name`, `unknown_tool_reference`, `external_send_missing_authority`, `high_risk_action_missing_authority`, `approval_missing_reviewer_role`, and `disallowed_tool_reference`.

@@ -187,7 +187,7 @@ aam check-examples
 | E011 | `sensitive_fields` must reference fields in `required_fields` or `optional_fields` when those lists are non-empty |
 | E012 | `RedactionHint.field_path` must be non-empty |
 | E013 | `approval_required` mode requires `reviewer_role` to be set |
-| E014 | `default_action: allow` for high-risk action types requires authority and non-none review |
+| E014 | `default_action: allow` for high-risk action types requires authority and a review mode other than `none` |
 
 ### Warnings
 
